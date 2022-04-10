@@ -47,7 +47,11 @@ def rotation_matrix(degrees, axis) -> ndarray:
         return z
 
 
-def rotate(theta, joint_number, clock_wise: bool = False) -> ndarray:
+def rotate(theta: int, joint_number: int, clock_wise: bool = False) -> ndarray:
+    """
+
+    :rtype: ndarray
+    """
     if clock_wise:
         theta = theta * -1
 
@@ -86,7 +90,7 @@ def update_labels(x_label, y_label, z_label, x_arrow, y_arrow, z_arrow):
 
 if __name__ == "__main__":
     offset = 0.025
-    rotate_end_matrix = np.ndarray
+    # rotate_end_matrix = np.ndarray
     THETA = 10
 
     base_frame_x = vector(1, 0, 0)
