@@ -6,6 +6,7 @@
 import keyboard
 import numpy as np
 import vpython as vpy
+from numpy import ndarray
 from vpython import vector, color, rate
 
 origin_vector = vector(0, 0, 0)
@@ -53,21 +54,21 @@ origin_vector = vector(0, 0, 0)
 #                          pos=base_frame_curve_z.pos + base_frame_curve_z.axis + vpy.vector(0, 0, offset),
 #                          box=False)
 
-R_1_2 = np.array([[1, 0, 0],
-                  [0, 0, -1],
-                  [0, 1, 0]])
+R_1_2: ndarray = np.array([[1, 0, 0],
+                           [0, 0, -1],
+                           [0, 1, 0]])
 
-R_3_4 = np.array([[1, 0, 0],
-                  [0, 0, 1],
-                  [0, -1, 0]])
-R_2_3 = np.array([[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 1]
-                  ])
-R_4_5 = np.array([[1, 0, 0],
-                  [0, 1, 0],
-                  [0, 0, 1]
-                  ])
+R_3_4: ndarray = np.array([[1, 0, 0],
+                           [0, 0, 1],
+                           [0, -1, 0]])
+R_2_3: ndarray = np.array([[1, 0, 0],
+                           [0, 1, 0],
+                           [0, 0, 1]
+                           ])
+R_4_5: ndarray = np.array([[1, 0, 0],
+                           [0, 1, 0],
+                           [0, 0, 1]
+                           ])
 
 
 def rotation_matrix(degrees, axis):
@@ -101,10 +102,10 @@ def rotate(theta, joint_number, clock_wise: bool = False) -> object:
     theta_arr = np.array([0, 0, 0, 0])
     theta_arr[joint_number] = theta
 
-    rot_1_2 = np.matmul(rotation_matrix(theta_arr[0], 'y'), R_1_2)
-    rot_2_3 = np.matmul(rotation_matrix(theta_arr[1], 'z'), R_2_3)
-    rot_3_4 = np.matmul(rotation_matrix(theta_arr[2], 'z'), R_3_4)
-    rot_4_5 = np.matmul(rotation_matrix(theta_arr[3], 'z'), R_4_5)
+    rot_1_2 = np.matmul(R_1_2, rotation_matrix(theta_arr[0], 'y'))
+    rot_2_3 = np.matmul(R_2_3, rotation_matrix(theta_arr[1], 'z'))
+    rot_3_4 = np.matmul(R_3_4, rotation_matrix(theta_arr[2], 'z'))
+    rot_4_5 = np.matmul(R_4_5, rotation_matrix(theta_arr[3], 'z'))
 
     rot1_3 = np.matmul(rot_1_2, rot_2_3)
     rot1_4 = np.matmul(rot1_3, rot_3_4)
@@ -186,56 +187,56 @@ if __name__ == "__main__":
         rate(5)
         try:
             if keyboard.is_pressed('z'):
-                print('Rotating joint 1 10 degrees')
+                print('Rotating joint 1 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 0)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('a'):
-                print('Rotating joint 1 10 degrees')
+                print('Rotating joint 1 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 0, clock_wise=True)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('x'):
-                print('Rotating joint 2 10 degrees')
+                print('Rotating joint 2 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 1)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('s'):
-                print('Rotating joint 2 10 degrees')
+                print('Rotating joint 2 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 1, clock_wise=True)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('c'):
-                print('Rotating joint 3 10 degrees')
+                print('Rotating joint 3 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 2)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('d'):
-                print('Rotating joint 3 10 degrees')
+                print('Rotating joint 3 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 2, clock_wise=True)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('f'):
-                print('Rotating joint 4 10 degrees')
+                print('Rotating joint 4 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 3)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                               end_frame_curve_z)
 
             elif keyboard.is_pressed('v'):
-                print('Rotating joint 4 10 degrees')
+                print('Rotating joint 4 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 3, clock_wise=True)
                 print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
