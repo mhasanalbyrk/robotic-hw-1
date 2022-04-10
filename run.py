@@ -1,58 +1,10 @@
-# sphere_location = vector(0,0,0)
-# box_location = vector(2,0,0)
-
-# sphere(pos=sphere_location)
-# box(pos=box_location)
 import keyboard
 import numpy as np
 import vpython as vpy
-from numpy import ndarray
+from numpy import ndarray, radians
 from vpython import vector, color, rate
 
-origin_vector = vector(0, 0, 0)
-
-# base_frame_x = vector(1, 0, 0)
-# base_frame_y = vector(0, 1, 0)
-# base_frame_z = vector(0, 0, 1)
-#
-# base_frame_curve_x = vpy.arrow(length=2, pos=origin_vector, axis=base_frame_x, color=color.cyan)
-# base_frame_curve_y = vpy.arrow(length=2, pos=origin_vector, axis=base_frame_y, color=color.cyan)
-# base_frame_curve_z = vpy.arrow(length=2, pos=origin_vector, axis=base_frame_z, color=color.cyan)
-#
-# end_frame_x = vector(1, 0, 0)
-# end_frame_y = vector(0, 1, 0)
-# end_frame_z = vector(0, 0, 1)
-#
-# end_frame_curve_x = vpy.arrow(length=1, pos=origin_vector, axis=end_frame_x, color=color.red)
-# end_frame_curve_y = vpy.arrow(length=1, pos=origin_vector, axis=end_frame_y, color=color.red)
-# end_frame_curve_z = vpy.arrow(length=1, pos=origin_vector, axis=end_frame_z, color=color.red)
-
-# base_frame = compound([base_frame_curve_x, base_frame_curve_y, base_frame_curve_z])
-# end_frame = compound([end_frame_curve_x, end_frame_curve_y, end_frame_curve_z])
-
-# end_frame_curve_x.rotate(angle=90, axis=end_frame_z, origin=origin_vector)
-# end_frame_curve_y.rotate(angle=90, axis=end_frame_z, origin=origin_vector)
-# end_frame_curve_z.rotate(angle=90, axis=end_frame_z, origin=origin_vector)
-# offset = 0.025
-# end_x_label = vpy.label(text="x", color=vpy.color.cyan,
-#                         pos=end_frame_curve_x.pos + end_frame_curve_x.axis + vpy.vector(offset, 0, 0),
-#                         box=False)
-# end_y_label = vpy.label(text="y", color=vpy.color.cyan,
-#                         pos=end_frame_curve_y.pos + end_frame_curve_y.axis + vpy.vector(0, offset, 0),
-#                         box=False)
-# end_z_label = vpy.label(text="z", color=vpy.color.cyan,
-#                         pos=end_frame_curve_z.pos + end_frame_curve_z.axis + vpy.vector(0, 0, offset),
-#                         box=False)
-#
-# base_x_label = vpy.label(text="x", color=vpy.color.red,
-#                          pos=base_frame_curve_x.pos + base_frame_curve_x.axis + vpy.vector(offset, 0, 0),
-#                          box=False)
-# base_y_label = vpy.label(text="y", color=vpy.color.red,
-#                          pos=base_frame_curve_y.pos + base_frame_curve_y.axis + vpy.vector(0, offset, 0),
-#                          box=False)
-# base_z_label = vpy.label(text="z", color=vpy.color.red,
-#                          pos=base_frame_curve_z.pos + base_frame_curve_z.axis + vpy.vector(0, 0, offset),
-#                          box=False)
+origin_vector: vector = vector(0, 0, 0)
 
 R_1_2: ndarray = np.array([[1, 0, 0],
                            [0, 0, -1],
@@ -71,8 +23,8 @@ R_4_5: ndarray = np.array([[1, 0, 0],
                            ])
 
 
-def rotation_matrix(degrees, axis):
-    theta_degrees = np.radians(degrees)
+def rotation_matrix(degrees, axis) -> ndarray:
+    theta_degrees: radians = np.radians(degrees)
 
     if axis == 'x':
         print('x rotation matrix')
@@ -95,11 +47,11 @@ def rotation_matrix(degrees, axis):
         return z
 
 
-def rotate(theta, joint_number, clock_wise: bool = False) -> object:
+def rotate(theta, joint_number, clock_wise: bool = False) -> ndarray:
     if clock_wise:
         theta = theta * -1
 
-    theta_arr = np.array([0, 0, 0, 0])
+    theta_arr: ndarray = np.array([0, 0, 0, 0])
     theta_arr[joint_number] = theta
 
     rot_1_2 = np.matmul(R_1_2, rotation_matrix(theta_arr[0], 'y'))
@@ -178,7 +130,7 @@ if __name__ == "__main__":
                              pos=base_frame_curve_z.pos + base_frame_curve_z.axis + vpy.vector(0, 0, offset),
                              box=False)
 
-    rotate_end_matrix = rotate(0, 0)
+    rotate_end_matrix: ndarray = rotate(0, 0)
     print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
     update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                   end_frame_curve_z)
