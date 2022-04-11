@@ -184,14 +184,14 @@ if __name__ == "__main__":
                 carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                              end_frame_curve_z)
 
-            elif keyboard.is_pressed('f'):
+            elif keyboard.is_pressed('v'):
                 print('Rotating joint 4 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 3)
                 re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
                 carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                              end_frame_curve_z)
 
-            elif keyboard.is_pressed('v'):
+            elif keyboard.is_pressed('f'):
                 print('Rotating joint 4 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 3, clock_wise=True)
                 re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
