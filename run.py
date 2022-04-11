@@ -70,7 +70,7 @@ def rotate(theta: int, joint_number: int, clock_wise: bool = False) -> ndarray:
     return rot1_5
 
 
-def print_new_axes(x_arrow, y_arrow, z_arrow, rotate_end_mat):
+def re_draw_new_frame(x_arrow, y_arrow, z_arrow, rotate_end_mat):
     # calculate new axis
     new_x_axis = np.matmul(rotate_end_mat, np.array([x_arrow.axis.x, x_arrow.axis.y, x_arrow.axis.z]))
     new_y_axis = np.matmul(rotate_end_mat, np.array([y_arrow.axis.x, y_arrow.axis.y, y_arrow.axis.z]))
@@ -81,7 +81,7 @@ def print_new_axes(x_arrow, y_arrow, z_arrow, rotate_end_mat):
     z_arrow.axis = vpy.vector(new_z_axis[0], new_z_axis[1], new_z_axis[2])
 
 
-def update_labels(x_label, y_label, z_label, x_arrow, y_arrow, z_arrow):
+def carry_labels(x_label, y_label, z_label, x_arrow, y_arrow, z_arrow):
     text_offset = 0.025
     x_label.pos = x_arrow.pos + x_arrow.axis + vpy.vector(text_offset, 0, 0)
     y_label.pos = y_arrow.pos + y_arrow.axis + vpy.vector(text_offset, 0, 0)
@@ -135,9 +135,9 @@ if __name__ == "__main__":
                              box=False)
 
     rotate_end_matrix: ndarray = rotate(0, 0)
-    print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-    update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                  end_frame_curve_z)
+    re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+    carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                 end_frame_curve_z)
 
     while True:
         rate(5)
@@ -145,58 +145,58 @@ if __name__ == "__main__":
             if keyboard.is_pressed('z'):
                 print('Rotating joint 1 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 0)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('a'):
                 print('Rotating joint 1 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 0, clock_wise=True)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('x'):
                 print('Rotating joint 2 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 1)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('s'):
                 print('Rotating joint 2 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 1, clock_wise=True)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('c'):
                 print('Rotating joint 3 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 2)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('d'):
                 print('Rotating joint 3 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 2, clock_wise=True)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('f'):
                 print('Rotating joint 4 10 degrees counter clock-wise')
                 rotate_end_matrix = rotate(THETA, 3)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
             elif keyboard.is_pressed('v'):
                 print('Rotating joint 4 10 degrees clock-wise')
                 rotate_end_matrix = rotate(THETA, 3, clock_wise=True)
-                print_new_axes(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
-                update_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
-                              end_frame_curve_z)
+                re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
+                carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
+                             end_frame_curve_z)
 
         except Exception as e:
             print(e.with_traceback())
