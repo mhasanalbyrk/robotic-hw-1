@@ -118,8 +118,6 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
             # turning first part, what happens to second
             eye = np.eye(3)
 
-
-
             part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
             part.axis = part.axis * 3
             norm = part.axis.norm()
@@ -147,7 +145,6 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
 
         elif part_number == 3:
             part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
-            part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
             part.axis = part.axis * 3
             norm = part.axis.norm()
             big_norm = norm * 3
@@ -157,43 +154,31 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
             rod3_3.axis = big_norm
             a = np.array([[np.cos(np.radians(THETA_1)), -np.sin(np.radians(THETA_1))],
                           [np.sin(np.radians(THETA_1)), np.cos(np.radians(THETA_1))]])
-            b = a @ np.array([[rod3_1.pos.x],
-                              [rod3_1.pos.y]])
+            b = a @ np.array([[6],
+                              [1.5]])
 
-            # rod3_1.pos.x = 6 * np.cos(np.radians(THETA_1)) + 1.5 * np.sin(np.radians(THETA_1))
+            # rod3_1.pos.x = 6 * np.cos(np.radians(THETA_1)) - 1.5 * np.sin(np.radians(THETA_1))
             # rod3_1.pos.y = 6 * np.sin(np.radians(THETA_1)) + 1.5 * np.cos(np.radians(THETA_1))
             rod3_1.pos.x = b[0][0]
             rod3_1.pos.y = b[1][0]
-
+            b = a @ np.array([[6],
+                              [-1.5]])
+            rod3_2.pos.x = b[0][0]
+            rod3_2.pos.y = b[1][0]
             rod3_1.pos.z = part.pos.z
-            rod3_2.pos.x = 6 * np.cos(np.radians(THETA_1)) + 1.5 * np.sin(np.radians(THETA_1))
-            rod3_2.pos.y = 6 * np.sin(np.radians(THETA_1)) + 1.5 * np.cos(np.radians(THETA_1))
             rod3_2.pos.z = part.pos.z
             rod3_3.pos.x = part.pos.x + big_norm.x
             rod3_3.pos.y = part.pos.y + big_norm.y
             rod3_3.pos.z = part.pos.z + big_norm.z
+            rod3_4.axis = big_norm
+            rod3_4.pos = rod3_3.pos
 
 
 
 
     elif rotated == 2:
-        # part.rotate(angle=np.radians(-5), origin=origin, axis=vpy.vector(0, 0, 1), )
-        # part.pos = origin
         print(f'rot for part2 = {rot}')
-        # calculate new axis
-        # print(part.origin)
-        # part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
         if part_number == 2:
-            # part.rotate(angle=np.radians(-5), origin=origin, axis=vpy.vector(0, 1, 0), )
-
-            temp = np.matmul(rot, rotation_matrix(THETA_2, 'z'))
-            own_rotation_axis = np.matmul(temp, np.array([
-                original_motor_2_axis[0],
-                original_motor_2_axis[1],
-                original_motor_2_axis[2]
-            ]))
-            part.axis = vpy.vector(own_rotation_axis[0], own_rotation_axis[1],
-                                   own_rotation_axis[2])
 
 
         elif part_number == 3:
@@ -285,8 +270,7 @@ if __name__ == "__main__":
     rod2_4: vpy.cylinder = vpy.cylinder(pos=vpy.vector(motor_2.pos.x + 3, motor_2.pos.y + 1.5, motor_2.pos.z),
                                         radius=0.2,
                                         axis=vpy.vector(3, 0, 0))
-    motor_2 = vpy.compound([motor_2], origin=vpy.vector(0, 0, 2.5))
-    rod2_3 = vpy.compound([rod2_3], origin=vpy.vector(3, 0, 2.5))
+
     motor_3: vpy.cylinder = vpy.cylinder(pos=vpy.vector(motor_2.pos.x + 6, -1.5, A_1), radius=0.3,
                                          axis=vpy.vector(0, 3, 0))
     motor_3.color = vpy.color.blue
@@ -306,8 +290,10 @@ if __name__ == "__main__":
     rod3_4: vpy.cylinder = vpy.cylinder(pos=vpy.vector(motor_2.pos.x + 6 + 3, motor_2.pos.y + 1.5, motor_3.pos.z),
                                         radius=0.2,
                                         axis=vpy.vector(3, 0, 0))
-    motor_3 =vpy.compound([motor_3], origin=vpy.vector(6, 0, 2.5))
-    rod3_3 = vpy.compound([rod3_3], origin= vpy.vector(9, 0, 2.5))
+    motor_3 = vpy.compound([motor_3], origin=vpy.vector(6, 0, 2.5))
+    rod3_3 = vpy.compound([rod3_3], origin=vpy.vector(9, 0, 2.5))
+    motor_2 = vpy.compound([motor_2], origin=vpy.vector(0, 0, 2.5))
+    rod2_3 = vpy.compound([rod2_3], origin=vpy.vector(3, 0, 2.5))
 
     # part_2: vpy.compound = vpy.compound([motor_2, rod2_4, rod2_3, rod2_1, rod2_2],
     #                                     origin=vpy.vector(0, 0, 2.5), axis=motor_2.axis)
