@@ -1,3 +1,5 @@
+import string
+
 import keyboard
 import numpy as np
 import vpython as vpy
@@ -23,7 +25,7 @@ R_4_5: ndarray = np.array([[1, 0, 0],
                            ])
 
 
-def rotation_matrix(degrees, axis) -> ndarray:
+def rotation_matrix(degrees: int, axis:string) -> ndarray:
     theta_degrees: radians = np.radians(degrees)
 
     if axis == 'x':
@@ -90,7 +92,6 @@ def carry_labels(x_label, y_label, z_label, x_arrow, y_arrow, z_arrow):
 
 if __name__ == "__main__":
     offset = 0.025
-    # rotate_end_matrix = np.ndarray
     THETA = 10
 
     base_frame_x = vector(1, 0, 0)
@@ -138,6 +139,7 @@ if __name__ == "__main__":
     re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, rotate_end_matrix)
     carry_labels(end_x_label, end_y_label, end_z_label, end_frame_curve_x, end_frame_curve_y,
                  end_frame_curve_z)
+
 
     while True:
         rate(5)

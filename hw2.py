@@ -57,18 +57,94 @@ THETA_ARR = [0, 0, 0]
 THETA_1: int = 0
 THETA_2: int = 0
 THETA_3: int = 0
-
+global H01
+H12 = None
+H23 = None
+H34 = None
+H45 = None
+H56 = None
 A_1 = 2.5
 A_2 = 6
 A_3 = 6
+a4 = 1
+a5 = 1
+a6 = 1
 
 r_1_2 = np.array([
     [1, 0, 0],
     [0, 0, 1],
     [0, 1, 0]])
+r01 = np.array([[1, 0, 0],
+                [0, 0, -1],
+                [0, 1, 0]])
+r12 = np.array([[1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]])
+r23 = np.array([[0, 0, 1],
+                [1, 0, 0],
+                [0, 1, 0]])
+r34 = np.array([[1, 0, 0],
+                [0, 0, 1],
+                [0, -1, 0]])
+r45 = np.array([[1, 0, 0],
+                [0, 0, -1],
+                [0, 1, 0]])
+r56 = np.array([[1, 0, 0],
+                [0, 1, 0],
+                [0, 0, 1]])
 
 
-def rotation_matrix(degrees: int, axis: string) -> ndarray:
+def calculateHomoMatricies(theta1, theta2, theta3, theta4, theta5, theta6):
+    global H01
+    global H12
+    global H23
+    global H34
+    global H45
+    global H56
+    R01 = rotation_matrix(theta1) @ r01
+    R12 = rotation_matrix(theta2) @ r12
+    R23 = rotation_matrix(theta3) @ r23
+    R34 = rotation_matrix(theta4) @ r34
+    R45 = rotation_matrix(theta5) @ r45
+    R56 = rotation_matrix(theta6) @ r56
+
+    d01 = np.array([[0],
+                    [0],
+                    [A_1]])
+    d12 = np.array([[A_2 * np.cos(theta2)],
+                    [A_2 * np.sin(theta2)],
+                    [0]])
+    d23 = np.array([[A_3 * np.cos(theta3)],
+                    [A_3 * np.sin(theta3)],
+                    [0]])
+    d34 = np.array([[0],
+                    [0],
+                    [a4]])
+    d45 = np.array([[a5 * np.cos(theta5)],
+                    [a5 * np.sin(theta5)],
+                    [0]])
+    d56 = np.array([[0],
+                    [0],
+                    [a6]])
+
+    d34 = np.array([[0],
+                    [0],
+                    [0]])
+    d45 = np.array([[0],
+                    [0],
+                    [0]])
+    d56 = np.array([[0],
+                    [0],
+                    [0]])
+    H01 = np.row_stack([np.column_stack([R01, d01]), np.array([0, 0, 0, 1])])
+    H12 = np.row_stack([np.column_stack([R12, d12]), np.array([0, 0, 0, 1])])
+    H23 = np.row_stack([np.column_stack([R23, d23]), np.array([0, 0, 0, 1])])
+    H34 = np.row_stack([np.column_stack([R34, d34]), np.array([0, 0, 0, 1])])
+    H45 = np.row_stack([np.column_stack([R45, d45]), np.array([0, 0, 0, 1])])
+    H56 = np.row_stack([np.column_stack([R56, d56]), np.array([0, 0, 0, 1])])
+
+
+def rotation_matrix(degrees: int, axis: string = 'z') -> ndarray:
     theta_degrees: radians = np.radians(degrees)
 
     if axis == 'x':
@@ -96,8 +172,9 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
     rot: ndarray[3][3]
     rot = matrix[0:3]
     rot = rot[:, [0, 1, 2]]
+    fix = np.array([0, 0, 0, 1])
     print(f'pos before for part {part_number} = {part.pos}')
-    part.pos = vpy.vector(part_1.pos.x + matrix[0][3], part_1.pos.y + matrix[1][3], matrix[2][3])
+    part.pos = vpy.vector(matrix[0][3], matrix[1][3], matrix[2][3])
 
     print(f'pos after for part {part_number} = {part.pos}')
     print(f'part.axis before for part {part_number} = {part.axis}')
@@ -116,15 +193,42 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
 
         if part_number == 2:
             # turning first part, what happens to second
-            eye = np.eye(3)
+            theta_2_rot_matrix = rotation_matrix(THETA_2, 'z')
+            d_2_1 = np.array([[1.5 * np.sin(np.radians(THETA_1))],
+                              [1.5 * np.cos(np.radians(THETA_1))],
+                              [0]])
+            rod_2_1_homo = np.c_[theta_2_rot_matrix, d_2_1]
+            rod_2_1_homo = np.row_stack([rod_2_1_homo, fix])
+            myHomo = matrix @ rod_2_1_homo
+            trans = myHomo[0:3, 3]
+            myRot = myHomo[0:3, 0:3]
+            rot = rot @ rotation_matrix(THETA_2, 'z')
+            new_x_axis_by_Theta_2 = np.matmul(myRot, np.array([
+                part_1.axis.x,
+                part_1.axis.y,
+                part_1.axis.z
+            ]))
+            d_2_3_Theta_1 = np.array([[3 * np.cos(np.radians(THETA_1))],
+                                      [3 * np.sin(np.radians(THETA_1))],
+                                      [0]])
+            rod_2_3_Theta_1_homo = np.c_[theta_2_rot_matrix, d_2_3_Theta_1]
+            rod_2_3_Theta_1_homo = np.row_stack([rod_2_3_Theta_1_homo, fix])
+
+            d_2_3_Theta_2 = np.array([[3 * np.cos(np.radians(THETA_2))],
+                                      [0],
+                                      [3 * np.sin(np.radians(THETA_2))]])
+            rod_2_3_Theta_2_homo = np.c_[theta_2_rot_matrix, d_2_3_Theta_2]
+            rod_2_3_Theta_2_homo = np.row_stack([rod_2_3_Theta_2_homo, fix])
+
+            myHomo_2_3 = matrix @ rod_2_3_Theta_2_homo
 
             part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
             part.axis = part.axis * 3
-            norm = part.axis.norm()
+            norm = vpy.vector(new_x_axis_by_Theta_2[0], new_x_axis_by_Theta_2[1], new_x_axis_by_Theta_2[2]).norm()
             big_norm = norm * 3
             rod2_1.axis = big_norm
             rod2_2.axis = big_norm
-            rod2_3.axis = big_norm
+            rod2_3.axis = part.axis
             rod2_4.axis = big_norm
 
             rod2_1.pos.x = 1.5 * np.cos(np.radians(THETA_1 + 90))
@@ -133,32 +237,38 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
             rod2_2.pos.x = -1.5 * np.cos(np.radians(THETA_1 + 90))
             rod2_2.pos.y = -1.5 * np.sin(np.radians(THETA_1 + 90))
             rod2_2.pos.z = part.pos.z
+
             rod2_3.pos.x = part.pos.x + big_norm.x
             rod2_3.pos.y = part.pos.y + big_norm.y
             rod2_3.pos.z = part.pos.z + big_norm.z
             rod2_4.pos = rod2_3.pos
 
-            # rod2_2.axis = norm * 3
-            # rod2_3.axis = norm * 3
-            # rod2_4.axis = norm * 3
-            # rod2_1.axis.y = part.axis.y * 3
 
         elif part_number == 3:
-            part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
-            part.axis = part.axis * 3
+            part.pos = rod2_4.pos + rod2_4.axis
+            norm = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2]).norm()
+            part.axis = norm * 3
+
+            rot = rot @ rotation_matrix(THETA_2, 'z')
+            # new_x_axis_by_Theta_2 = np.matmul(rot, np.array([
+            #     part_1.axis.x,
+            #     part_1.axis.y,
+            #     part_1.axis.z
+            # ]))
+            # part.axis = vpy.vector(new_x_axis_by_Theta_2[0], new_x_axis_by_Theta_2[1], new_x_axis_by_Theta_2[2])
+            # part.axis = part.axis * 3
             norm = part.axis.norm()
             big_norm = norm * 3
-
+            #
             rod3_1.axis = big_norm
             rod3_2.axis = big_norm
             rod3_3.axis = big_norm
             a = np.array([[np.cos(np.radians(THETA_1)), -np.sin(np.radians(THETA_1))],
                           [np.sin(np.radians(THETA_1)), np.cos(np.radians(THETA_1))]])
+
             b = a @ np.array([[6],
                               [1.5]])
 
-            # rod3_1.pos.x = 6 * np.cos(np.radians(THETA_1)) - 1.5 * np.sin(np.radians(THETA_1))
-            # rod3_1.pos.y = 6 * np.sin(np.radians(THETA_1)) + 1.5 * np.cos(np.radians(THETA_1))
             rod3_1.pos.x = b[0][0]
             rod3_1.pos.y = b[1][0]
             b = a @ np.array([[6],
@@ -177,19 +287,78 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
 
 
     elif rotated == 2:
-        print(f'rot for part2 = {rot}')
         if part_number == 2:
+            theta_2_rot_matrix = rotation_matrix(THETA_2, 'z')
+            d = np.array([[1.5 * np.sin(np.radians(THETA_1))],
+                          [1.5 * np.cos(np.radians(THETA_1))],
+                          [0]])
+            rod_2_1_homo = np.c_[theta_2_rot_matrix, d]
+            rod_2_1_homo = np.row_stack([rod_2_1_homo, fix])
+            myHomo = matrix @ rod_2_1_homo
+            trans = myHomo[0:3, 3]
+            myRot = myHomo[0:3, 0:3]
+            rot = rot @ rotation_matrix(THETA_2, 'z')
+            new_x_axis_by_Theta_2 = np.matmul(myRot, np.array([
+                part_1.axis.x,
+                part_1.axis.y,
+                part_1.axis.z
+            ]))
+            rot = rot @ rotation_matrix(THETA_2, 'z')
+            new_x_axis = np.matmul(rot, np.array([
+                part_1.axis.x,
+                part_1.axis.y,
+                part_1.axis.z
+            ]))
+            print(f'rot for part2 = {rot}')
+
+            k = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
+            # part.axis = part.axis * 3
+            norm = k.norm()
+            big_norm = norm * 3
+            rod2_1.axis = big_norm
+            rod2_2.axis = big_norm
+            rod2_3.axis = part.axis
+            rod2_4.axis = big_norm
+            rod2_3.pos.x = part.pos.x + big_norm.x
+            rod2_3.pos.y = part.pos.y + big_norm.y
+            rod2_3.pos.z = part.pos.z + big_norm.z
+            rod2_4.pos = rod2_3.pos
 
 
         elif part_number == 3:
-            part.axis = vpy.vector(float(str(new_x_axis[0])[:2]), float(str(new_x_axis[1])[:2]),
-                                   float(str(new_x_axis[2])[:2]))
+            # norm = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2]).norm()
+            # part.axis = norm * 3
+
+            part.pos = rod2_4.pos + rod2_4.axis
+
+            rot = rot @ rotation_matrix(THETA_3, 'z')
+            # new_x_axis_by_Theta_3 = np.matmul(rot, np.array([
+            #     part_1.axis.x,
+            #     part_1.axis.y,
+            #     part_1.axis.z
+            # ]))
+            #
+            # big_norm = vpy.vector(new_x_axis_by_Theta_3[0], new_x_axis_by_Theta_3[1],
+            #                       new_x_axis_by_Theta_3[1]).norm() * 3
+            # part.axis = big_norm
+            # part.pos = rod2_4.pos + rod2_4.axis
+            #
+            # rod3_1.pos.x = rod2_1.axis.x + 2*big_norm.x
+            # rod3_1.pos.y = rod2_1.axis.y + 2*big_norm.y
+            # rod3_1.pos.z = rod2_1.axis.z + 2*big_norm.z
+            # rod3_1.axis = big_norm
+            #
+            # rod3_2.axis = big_norm
+            # rod3_3.axis = big_norm
+            # rod3_4.axis = big_norm
 
 
-    # new_y_axis = np.matmul(rot, np.array([part.axis.x, part.axis.y, part.axis.z]))
-    # new_z_axis = np.matmul(rot, np.array([part.axis.x, part.axis.y, part.axis.z]))
 
     elif rotated == 3:
+        part.pos = rod2_4.pos + rod2_4.axis
+
+        norm = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2]).norm()
+        part.axis = norm * 3
         print(f'rot for part3= {rot}')
         rot = np.matmul(rot, rotation_matrix(THETA_3, 'z'))
         new_x_axis = np.matmul(rot, np.array([
@@ -197,26 +366,23 @@ def redraw(matrix: ndarray, part: vpy.cylinder, origin: vpy.vector, part_number,
             part_1.axis.y,
             part_1.axis.z
         ]))
-        # part.pos.x = matrix[0][3] +3
-        # part.pos.y = matrix[1][3]
-        # part.pos.z = matrix[2][3]
+
+        big_norm = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2]).norm() * 3
+        rod3_2.axis = big_norm
+        rod3_3.axis = big_norm
+        rod3_4.axis = big_norm
+        rod3_1.axis = big_norm
+        rod3_3.pos = motor_3.pos + rod3_2.axis
+        rod3_4.pos = motor_3.pos + rod3_2.axis
         # part.rotate(angle=np.radians(-5), axis=vpy.vector(0, 0, 1), origin=origin)
 
-        part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
-
-    # end_x_label.pos = part_2.pos + vpy.vector(offset, 0, 0)
-    # part_3_pos.pos = part_3.pos + vpy.vector(offset, 0, 0)
-
-    # print(f' new axis by rot matrix x {new_x_axis}')
-    # part.axis = vpy.vector(new_x_axis[0], new_x_axis[1], new_x_axis[2])
-    # print(part.origin)
     print(f'part.axis after for part {part_number} = {part.axis}')
 
 
 def full_homo_matrix(part_number: int) -> ndarray:
     if part_number == 2:
         return calc_homo_matrix(1)
-    if part_number == 3:
+    elif part_number == 3:
         return np.matmul(calc_homo_matrix(1), calc_homo_matrix(2))
 
 
@@ -246,7 +412,69 @@ def calc_homo_matrix(part_number: int) -> ndarray:
         return np.row_stack([temp, fix])
 
 
+def calculateJacobian():
+    H02 = H01 @ H12
+    H03 = H02 @ H23
+    H04 = H03 @ H34
+    H05 = H04 @ H45
+    H06 = H05 @ H56
+    eye = np.eye(3)
+
+    jacobianUpper = np.cross((eye @ np.array([[0],
+                                              [0],
+                                              [1]]).flatten()), H06[0:3, 3].reshape([1, 3]).flatten())
+    jacobianUpper = np.column_stack([jacobianUpper, np.cross((H01[0:3, 0:3] @ np.array([[0],
+                                                                                        [0],
+                                                                                        [1]]).flatten()),
+                                                             H06[0:3, 3].reshape([1, 3]) - H01[0:3, 3].reshape(
+                                                                 [1, 3])).reshape([3, 1])])
+    jacobianUpper = np.column_stack([jacobianUpper, np.cross((H02[0:3, 0:3] @ np.array([[0],
+                                                                                        [0],
+                                                                                        [1]]).flatten()),
+                                                             H06[0:3, 3].reshape([1, 3]) - H02[0:3, 3].reshape(
+                                                                 [1, 3])).reshape([3, 1])])
+    jacobianUpper = np.column_stack([jacobianUpper, np.cross(H03[0:3, 0:3] @ np.array([[0],
+                                                                                       [0],
+                                                                                       [1]]).flatten(),
+                                                             H06[0:3, 3].reshape([1, 3]) - H03[0:3, 3].reshape(
+                                                                 [1, 3])).reshape([3, 1])])
+    jacobianUpper = np.column_stack([jacobianUpper, np.cross((H04[0:3, 0:3] @ np.array([[0],
+                                                                                        [0],
+                                                                                        [1]]).flatten()),
+                                                             H06[0:3, 3].reshape([1, 3]) - H04[0:3, 3].reshape(
+                                                                 [1, 3])).reshape([3, 1])])
+    jacobianUpper = np.column_stack([jacobianUpper, np.cross((H05[0:3, 0:3] @ np.array([[0],
+                                                                                        [0],
+                                                                                        [1]]).flatten()),
+                                                             H06[0:3, 3].reshape([1, 3]) - H05[0:3, 3].reshape(
+                                                                 [1, 3])).reshape([3, 1])])
+
+    jacobianLower = np.array([[0],
+                              [0],
+                              [1]])
+    jacobianLower = np.column_stack([jacobianLower, H01[0:3, 0:3] @ np.array([[0],
+                                                                              [0],
+                                                                              [1]])])
+    jacobianLower = np.column_stack([jacobianLower, H02[0:3, 0:3] @ np.array([[0],
+                                                                              [0],
+                                                                              [1]])])
+    jacobianLower = np.column_stack([jacobianLower, H03[0:3, 0:3] @ np.array([[0],
+                                                                              [0],
+                                                                              [1]])])
+    jacobianLower = np.column_stack([jacobianLower, H04[0:3, 0:3] @ np.array([[0],
+                                                                              [0],
+                                                                              [1]])])
+    jacobianLower = np.column_stack([jacobianLower, H05[0:3, 0:3] @ np.array([[0],
+                                                                              [0],
+                                                                              [1]])])
+
+    return np.row_stack([jacobianUpper, jacobianLower])
+
+
 if __name__ == "__main__":
+    mybox = vpy.box(pos=vpy.vector(13, 0, 0),
+                length=1, height=10, width=5)
+
     offset = 0.0
     THETA_UNIT = 5
     motor_1: vpy.cylinder = vpy.cylinder(pos=vpy.vector(0, 0, 0), radius=0.3, axis=vpy.vector(0, 0, 1));
@@ -315,11 +543,50 @@ if __name__ == "__main__":
                            pos=motor_3.pos + vpy.vector(0.025, 0, 0),
                            box=False)
 
-    while True:
+    thetas = np.array([
+        [THETA_1],
+        [THETA_2],
+        [THETA_3],
+        [0],
+        [0],
+        [0]])
+    calculateHomoMatricies(thetas[0][0], thetas[1][0], thetas[2][0], thetas[3][0], thetas[4][0],
+                           thetas[5][0])
+    jacobian = calculateJacobian()
+
+    xDot = 0
+    yDot = 100
+    zDot = 0
+    wX = 0
+    wY = 0
+    wZ = 0
+    movVars = np.array([[xDot],
+                        [yDot],
+                        [zDot],
+                        [wX],
+                        [wY],
+                        [wZ]])
+
+    while(True):
         vpy.rate(5)
         try:
-            if keyboard.is_pressed('a'):
-                THETA_1 -= THETA_UNIT
+                calculateHomoMatricies(thetas[0][0], thetas[1][0], thetas[2][0], thetas[3][0], thetas[4][0],
+                                       thetas[5][0])
+                jacobian = calculateJacobian()
+                deltas = np.linalg.pinv(jacobian) @ movVars
+                THETA_1 = THETA_1 + deltas[0][0]
+
+                thetas = np.array([
+                    [THETA_1],
+                    [THETA_2],
+                    [THETA_3],
+                    [0],
+                    [0],
+                    [0]])
+                calculateHomoMatricies(thetas[0][0], thetas[1][0], thetas[2][0], thetas[3][0], thetas[4][0],
+                                       thetas[5][0])
+                jacobian = calculateJacobian()
+
                 if THETA_1 + 360 == 0:
                     THETA_1 = 0
 
@@ -336,70 +603,16 @@ if __name__ == "__main__":
 
                 redraw(homogeneous_matrix, motor_3,
                        vpy.vector(0, 0, 2.5), part_number=3, rotated=1)
+                if np.abs(THETA_1) > 30:
+                    yDot = -1 * yDot
+
+                movVars = np.array([[xDot],
+                                    [yDot],
+                                    [zDot],
+                                    [wX],
+                                    [wY],
+                                    [wZ]])
                 # redraw(homogeneous_matrix, motor_3, vpy.vector(6 * np.cos(THETA_2), 6 * np.sin(THETA_2), 2.5))
-
-            elif keyboard.is_pressed('s'):
-                THETA_1 += THETA_UNIT
-                if THETA_1 + 360 == 0:
-                    THETA_1 = 0
-
-                print(f'Theta 1 = {THETA_1}')
-                homogeneous_matrix = full_homo_matrix(2)
-                # print(f'Homo matrix for 1 to 2 = {homogeneous_matrix}')
-
-                # redraw(homogeneous_matrix, motor_2,
-                #        vpy.vector(homogeneous_matrix[0][3], homogeneous_matrix[1][3], homogeneous_matrix[2][3]))
-                redraw(homogeneous_matrix, motor_2, vpy.vector(0, 0, 2.5), part_number=2, rotated=1)
-
-                homogeneous_matrix = full_homo_matrix(3)
-                # redraw(homogeneous_matrix, part_3,
-                #        vpy.vector(0, 0, 2.5), part_number=3, rotated=1)
-            # 
-            # 
-            elif keyboard.is_pressed('q'):
-                THETA_2 -= THETA_UNIT
-                if THETA_2 + 360 == 0:
-                    THETA_2 = 0
-
-                print(f'Theta 2 = {THETA_2}')
-                homogeneous_matrix = full_homo_matrix(2)
-                print(f'Homo matrix for 1 to 2 = {homogeneous_matrix}')
-
-                # redraw(homogeneous_matrix, part_2,
-                #        vpy.vector(homogeneous_matrix[0][3], homogeneous_matrix[1][3], homogeneous_matrix[2][3]))
-                # redraw(homogeneous_matrix, part_2, vpy.vector(0, 0, 2.5), part_number=2, rotated=2)
-
-                homogeneous_matrix = full_homo_matrix(3)
-                print(f'Homo matrix for 1 to 3 = {homogeneous_matrix}')
-
-                # redraw(homogeneous_matrix, part_3,
-                #        vpy.vector(0, 0, 2.5), part_number=3, rotated=2)
-
-            # 
-            # elif keyboard.is_pressed('w'):
-            #     print('Rotating joint 2 10 degrees clock-wise')
-            #     homogeneous_matrix = calc_homo_matrix(THETA_UNIT, 1, )
-            #     re_draw_new_frame()
-            # 
-            # 
-            elif keyboard.is_pressed('z'):
-                THETA_3 -= THETA_UNIT
-                if THETA_3 + 360 == 0:
-                    THETA_3 = 0
-
-                print(f'Theta 3 = {THETA_3}')
-                homogeneous_matrix = full_homo_matrix(3)
-                print(f'Homo matrix for 1 to 3 = {homogeneous_matrix}')
-
-            #     redraw(homogeneous_matrix, part_3,
-            #            vpy.vector(0, 0, 2.5), part_number=3, rotated=3)
-            # #
-            # #
-            # elif keyboard.is_pressed('x'):
-            #     print('Rotating joint 4 10 degrees clock-wise')
-            #     homogeneous_matrix = calc_homo_matrix(THETA_UNIT, 3)
-            #     re_draw_new_frame(end_frame_curve_x, end_frame_curve_y, end_frame_curve_z, homogeneous_matrix)
-
 
         except Exception as e:
             print(e.with_traceback())
